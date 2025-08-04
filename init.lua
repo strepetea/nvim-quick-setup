@@ -275,15 +275,6 @@ require('lazy').setup({
   -- Use the `dependencies` key to specify the dependencies of a particular plugin
 
   -- Synchronized clipboard
-  {
-    'EtiamNullam/deferred-clipboard.nvim',
-    config = function()
-      require('deferred-clipboard').setup {
-        fallback = 'unnamedplus', -- or your preferred setting for clipboard
-      }
-    end,
-  },
-
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
