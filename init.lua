@@ -215,6 +215,9 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
+      win = {
+        border = 'rounded',
+      },
     },
   },
 
@@ -382,6 +385,7 @@ require('lazy').setup({
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
+            vim.o.updatetime = 400
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
               group = highlight_augroup,
@@ -419,8 +423,13 @@ require('lazy').setup({
       -- See :help vim.diagnostic.Opts
       vim.diagnostic.config {
         severity_sort = true,
-        float = { border = 'rounded', source = 'if_many' },
-        underline = { severity = vim.diagnostic.severity.ERROR },
+        float = {
+          border = 'rounded',
+          source = 'if_many',
+        },
+        underline = {
+          severity = vim.diagnostic.severity.ERROR,
+        },
         signs = vim.g.have_nerd_font and {
           text = {
             [vim.diagnostic.severity.ERROR] = '󰅚 ',
@@ -429,20 +438,71 @@ require('lazy').setup({
             [vim.diagnostic.severity.HINT] = '󰌶 ',
           },
         } or {},
-        virtual_text = {
-          source = 'if_many',
-          spacing = 2,
-          format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
-            }
-            return diagnostic_message[diagnostic.severity]
-          end,
-        },
+        virtual_text = false, -- disable inline diagnostics
       }
+
+      local diagnostic_float_win = nil
+
+      local function open_diagnostic_float()
+        local cursor_line = vim.api.nvim_win_get_cursor(0)[1] - 1
+        local diagnostics = vim.diagnostic.get(0, { lnum = cursor_line })
+        if #diagnostics == 0 then
+          return
+        end
+
+        local function split_lines(str)
+          local result = {}
+          for line in str:gmatch '([^\n]+)' do
+            table.insert(result, line)
+          end
+          return result
+        end
+
+        local lines = {}
+        for _, diag in ipairs(diagnostics) do
+          local diag_lines = split_lines(diag.message)
+          vim.list_extend(lines, diag_lines)
+        end
+
+        local buf = vim.api.nvim_create_buf(false, true)
+        vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
+        local width = 0
+        for _, line in ipairs(lines) do
+          width = math.max(width, #line)
+        end
+
+        local opts = {
+          relative = 'cursor',
+          anchor = 'NW',
+          width = width,
+          height = #lines,
+          col = 0,
+          row = 5, -- 5 lines below cursor
+          style = 'minimal',
+          border = 'rounded',
+        }
+
+        -- Close previous float if open
+        if diagnostic_float_win and vim.api.nvim_win_is_valid(diagnostic_float_win) then
+          vim.api.nvim_win_close(diagnostic_float_win, true)
+        end
+
+        diagnostic_float_win = vim.api.nvim_open_win(buf, false, opts)
+      end
+
+      vim.api.nvim_create_autocmd('CursorHold', {
+        callback = open_diagnostic_float,
+      })
+
+      vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+        callback = function()
+          if diagnostic_float_win and vim.api.nvim_win_is_valid(diagnostic_float_win) then
+            vim.api.nvim_win_close(diagnostic_float_win, true)
+            diagnostic_float_win = nil
+          end
+        end,
+      })
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
