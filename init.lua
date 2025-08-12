@@ -46,17 +46,21 @@ vim.o.confirm = true
 --  See `:help vim.keymap.set()`
 
 --  See `:help hlsearch`
-vim.api.nvim_set_keymap('n', 'q', '<nop>', { noremap = true, silent = true }) -- disables q for macro recording
+vim.keymap.set('n', 'q', '<nop>', { noremap = true, silent = true }) -- disables q for macro recording
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
-vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+--vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+vim.keymap.set('n', 'K', function()
+  vim.lsp.buf.hover { border = 'rounded' }
+end)
 
 -- Mouse scrolling
 vim.keymap.set('', '<ScrollWheelUp>', 'k', { noremap = true, silent = true })
@@ -171,6 +175,7 @@ require('lazy').setup({
       vim.api.nvim_create_user_command('FTermExit', require('FTerm').exit, { bang = true })
       vim.api.nvim_create_user_command('FTermToggle', require('FTerm').toggle, { bang = true })
 
+      -- Floating terminal keymaps
       vim.keymap.set('n', '<leader>tt', '<cmd>FTermToggle<CR>', { desc = '[T]oggle [T]erminal' })
       vim.keymap.set('t', '<Esc><Esc>', '<cmd>FTermToggle<CR>')
       vim.keymap.set('t', '<C-q>', [[<cmd>FTermExit<CR>]])
