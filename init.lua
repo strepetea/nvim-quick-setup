@@ -49,6 +49,10 @@ vim.o.confirm = true
 vim.keymap.set('n', 'q', '<nop>', { noremap = true, silent = true }) -- disables q for macro recording
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Make the cursor move via display lines rather than physical lines of the file
+vim.keymap.set('n', 'j', 'gj', { noremap = true, silent = true })
+vim.keymap.set('n', 'k', 'gk', { noremap = true, silent = true })
+
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 --vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
