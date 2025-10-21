@@ -109,7 +109,24 @@ require('lazy').setup({
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
   -- This plugin adds indentation guides to Neovim.
-  'lukas-reineke/indent-blankline.nvim',
+  {
+    'lukas-reineke/indent-blankline.nvim',
+    main = 'ibl',
+    opts = {
+      -- General Indent Guide Settings
+      indent = {
+        -- This character will be used for all indent guides
+        char = '|',
+      },
+
+      -- Scope (Current Context) Settings
+      scope = {
+        enabled = true,
+        show_start = true,
+        show_end = false,
+      },
+    },
+  },
 
   -- No starch floating terminal
   {
