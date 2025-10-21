@@ -108,6 +108,9 @@ require('lazy').setup({
   --  because of the `opts` key (recommended), the configuration runs
   -- after the plugin has been loaded as `require(MODULE).setup(opts)`.
 
+  -- This plugin adds indentation guides to Neovim.
+  'lukas-reineke/indent-blankline.nvim',
+
   -- No starch floating terminal
   {
     'numToStr/FTerm.nvim',
